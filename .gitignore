@@ -1,0 +1,23 @@
+# Environment variables with secrets
+.env
+
+# SYNQ CLI binary (if downloaded locally)
+synqcli
+synqcli.exe
+*.tar.gz
+*.zip
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.log
