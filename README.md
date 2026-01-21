@@ -2,9 +2,18 @@
 
 A quick-start guide for testing SYNQ CLI to deploy data quality monitors and tests.
 
+## 📚 Available Guides
+
+- **[README.md](README.md)** - This file: Quick start guide for basic deployment
+- **[AI-ADVISOR-SETUP.md](AI-ADVISOR-SETUP.md)** - Complete guide for AI advisor with Snowflake/Okta SSO
+- **[CLI-COMMANDS.md](CLI-COMMANDS.md)** - Detailed CLI commands reference and manual deployment
+- **[test-setup.sh](test-setup.sh)** - Diagnostic script to verify your setup
+
 ## Overview
 
 SYNQ CLI is a command-line tool for managing data quality tests and monitors as code. This guide provides everything you need to test SYNQ CLI with a sample monitor configuration.
+
+**Need help with AI advisor or Snowflake?** See [AI-ADVISOR-SETUP.md](AI-ADVISOR-SETUP.md)
 
 ## Prerequisites
 
