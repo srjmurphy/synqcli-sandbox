@@ -1,0 +1,98 @@
+name: Deploy SYNQ Monitors
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'monitors/**/*.yml'
+      - 'monitors/**/*.yaml'
+      - 'example-monitor.yaml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'monitors/**/*.yml'
+      - 'monitors/**/*.yaml'
+      - 'example-monitor.yaml'
+
+jobs:
+  # Validate monitor configurations on pull requests
+  validate:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download SYNQ CLI
+      run: |
+        echo "Downloading SYNQ CLI v0.3.0..."
+        wget https://github.com/getsynq/synqcli/releases/download/v0.3.0/synqcli_0.3.0_linux_amd64.tar.gz
+        tar -xzf synqcli_0.3.0_linux_amd64.tar.gz
+        chmod +x synqcli
+        ./synqcli --version
+
+    - name: Validate monitor configurations (dry run)
+      env:
+        SYNQ_CLIENT_ID: ${{ secrets.SYNQ_CLIENT_ID }}
+        SYNQ_CLIENT_SECRET: ${{ secrets.SYNQ_CLIENT_SECRET }}
+        SYNQ_API_URL: ${{ secrets.SYNQ_API_URL }}
+      run: |
+        echo "Validating monitor configurations..."
+
+        # Check if monitors directory exists and has files
+        if [ -d "monitors" ] && compgen -G "monitors/*.y*ml" > /dev/null; then
+          echo "Found monitors in monitors/ directory"
+          ./synqcli deploy monitors/**/*.yaml monitors/**/*.yml --dry-run
+        fi
+
+        # Check for example-monitor.yaml
+        if [ -f "example-monitor.yaml" ]; then
+          echo "Found example-monitor.yaml"
+          ./synqcli deploy example-monitor.yaml --dry-run
+        fi
+
+  # Deploy monitors when merged to main
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download SYNQ CLI
+      run: |
+        echo "Downloading SYNQ CLI v0.3.0..."
+        wget https://github.com/getsynq/synqcli/releases/download/v0.3.0/synqcli_0.3.0_linux_amd64.tar.gz
+        tar -xzf synqcli_0.3.0_linux_amd64.tar.gz
+        chmod +x synqcli
+        ls -la synqcli
+        ./synqcli --version
+
+    - name: Deploy monitors to SYNQ
+      env:
+        SYNQ_CLIENT_ID: ${{ secrets.SYNQ_CLIENT_ID }}
+        SYNQ_CLIENT_SECRET: ${{ secrets.SYNQ_CLIENT_SECRET }}
+        SYNQ_API_URL: ${{ secrets.SYNQ_API_URL }}
+      run: |
+        echo "Deploying monitors to SYNQ..."
+
+        # Deploy from monitors directory if it exists
+        if [ -d "monitors" ] && compgen -G "monitors/*.y*ml" > /dev/null; then
+          echo "Deploying monitors from monitors/ directory..."
+          for file in monitors/*.yml monitors/*.yaml; do
+            if [ -f "$file" ]; then
+              echo "Processing $file"
+              ./synqcli deploy "$file" --auto-confirm
+            fi
+          done
+        fi
+
+        # Deploy example-monitor.yaml if it exists
+        if [ -f "example-monitor.yaml" ]; then
+          echo "Deploying example-monitor.yaml..."
+          ./synqcli deploy example-monitor.yaml --auto-confirm
+        fi
+
+        echo "Deployment completed successfully!"

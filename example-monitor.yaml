@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/getsynq/synqcli/main/schema.json
+version: v1beta2
+namespace: "finance-team"
+
+defaults:
+  severity: ERROR
+  schedule:
+    type: daily
+    query_delay: 9h  # Run at 9:00 AM (540 minutes = 9 hours since midnight)
+  mode:
+    anomaly_engine:
+      sensitivity: PRECISE
+
+entities:
+  # Replace 's_nyc_taxi' with your actual table identifier from SYNQ
+  # Examples: bq-prod.dataset.table_name or snowflake-prod.database.schema.table_name
+  - id: s_nyc_taxi
+    time_partitioning_column: pickup_datetime
+
+    monitors:
+      - id: s_nyc_taxi_growth_daily_cicd_workflow
+        type: volume
+        description: "Daily volume monitoring for NYC taxi data"
+        severity: ERROR
+        mode:
+          anomaly_engine:
+            sensitivity: PRECISE
